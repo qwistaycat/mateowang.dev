@@ -203,19 +203,285 @@
 			}
 		}
 
+		/* Listen along is a toggle, not a link: same hug-the-drawing box as the
+		   anchors, and it stays cyan while the listening view is open */
+		.trinkets .listen-toggle {
+			display: flex;
+			padding: 0;
+			border: 0;
+			background: none;
+			pointer-events: auto;
+			cursor: pointer;
+		}
+
+		.listen-toggle[aria-pressed="true"] img.button {
+			animation-name: wiggle-cyan;
+		}
+
+		/* The listening view. Same size and clip as the filler (drawSquircle()
+		   copies the clip over), so it sits exactly inside the line. */
+		.listen {
+			position: absolute;
+			inset: -32px;
+			z-index: 2;
+			pointer-events: none;
+			container-type: size;
+		}
+
+		/* The panel only shows once the halftone dots have covered the painting
+		   in the same orange, so the swap underneath them is invisible */
+		.listen-reveal {
+			position: absolute;
+			inset: 0;
+			background: #fb5a28;
+			color: #f8cffc;
+			visibility: hidden;
+		}
+
+		.listen.is-open .listen-reveal,
+		.listen.is-solid .listen-reveal {
+			visibility: visible;
+		}
+
+		/* Halftone transition: a grid of orange dots that swell out from the
+		   Listen along button until they merge into solid orange */
+		.listen-dots {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 1;
+			pointer-events: none;
+		}
+
+		.stage.is-listening .listen {
+			pointer-events: auto;
+		}
+
+		/* The painting eases back as the circle comes over it */
+		.temp-filler {
+			transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+		}
+
+		.stage.is-listening .temp-filler {
+			transform: scale(0.96);
+		}
+
+		.listen-inner {
+			position: absolute;
+			inset: 0;
+			padding: calc(32px + clamp(24px, 4vw, 56px));
+			display: grid;
+			grid-template-columns: 1.4fr 1fr 1fr;
+			gap: clamp(20px, 3vw, 48px);
+			align-content: center;
+			overflow: auto;
+		}
+
+		/* Content drifts up after the circle has mostly opened, one block at a
+		   time; on close it fades first so the circle shrinks over nothing */
+		.listen-inner > * {
+			opacity: 0;
+			transform: translateY(10px);
+			transition:
+				opacity 0.15s ease,
+				transform 0.15s ease;
+		}
+
+		.listen.is-open .listen-inner > * {
+			opacity: 1;
+			transform: none;
+			transition:
+				opacity 0.5s ease calc(0.05s + var(--i) * 0.09s),
+				transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) calc(0.05s + var(--i) * 0.09s);
+		}
+
+		.listen-label {
+			font-size: 12px;
+			letter-spacing: 0.08em;
+			text-transform: lowercase;
+			opacity: 0.75;
+			margin-bottom: 12px;
+		}
+
+		.np-row {
+			display: flex;
+			align-items: center;
+			gap: 18px;
+		}
+
+		/* A record that turns in hops, like the rest of the hand-drawn motion */
+		.np-disc {
+			flex: none;
+			width: clamp(64px, 9vw, 120px);
+			aspect-ratio: 1;
+			border-radius: 50%;
+			background:
+				radial-gradient(circle, #fb5a28 0 9%, #f8cffc 9.5% 30%, transparent 30.5%),
+				repeating-radial-gradient(circle, #f8cffc 0 2px, #f4b8f8 2px 5px);
+			animation: spin 4s steps(48) infinite;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(1turn);
+			}
+		}
+
+		.np-title {
+			font-size: clamp(16px, 1.8vw, 22px);
+			line-height: 1.2;
+		}
+
+		.np-artist {
+			margin-top: 4px;
+			font-size: 13px;
+			opacity: 0.8;
+		}
+
+		.eq {
+			display: flex;
+			align-items: flex-end;
+			gap: 3px;
+			height: 16px;
+			margin-top: 12px;
+		}
+
+		.eq i {
+			width: 4px;
+			height: 100%;
+			background: #f8cffc;
+			transform-origin: bottom;
+			animation: eq 0.9s steps(6) infinite alternate;
+		}
+
+		.eq i:nth-child(2) { animation-delay: -0.3s; }
+		.eq i:nth-child(3) { animation-delay: -0.6s; }
+		.eq i:nth-child(4) { animation-delay: -0.15s; }
+
+		@keyframes eq {
+			from {
+				transform: scaleY(0.2);
+			}
+			to {
+				transform: scaleY(1);
+			}
+		}
+
+		.listen ol {
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			font-size: 14px;
+			line-height: 1.3;
+		}
+
+		.listen ol {
+			counter-reset: rank;
+		}
+
+		.listen ol li {
+			display: flex;
+			gap: 10px;
+			counter-increment: rank;
+		}
+
+		.listen ol li::before {
+			content: counter(rank, decimal-leading-zero);
+			opacity: 0.6;
+		}
+
+		.listen ol small {
+			display: block;
+			font-size: 11px;
+			opacity: 0.7;
+		}
+
+		.listen-close {
+			position: absolute;
+			bottom: calc(32px + 18px);
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			padding: 4px 12px;
+			border: 2px solid #f8cffc;
+			border-radius: 999px;
+			background: none;
+			color: #f8cffc;
+			font: inherit;
+			font-size: 12px;
+			cursor: pointer;
+		}
+
+		.listen-close:hover {
+			background: #f8cffc;
+			color: #fb5a28;
+		}
+
+		@container (max-width: 640px) {
+			.listen-inner {
+				grid-template-columns: 1fr 1fr;
+			}
+
+			.listen-now {
+				grid-column: 1 / -1;
+			}
+		}
+
+		@container (max-width: 420px) {
+			.listen-inner {
+				grid-template-columns: 1fr;
+				align-content: start;
+			}
+
+			.listen-repeat {
+				display: none;
+			}
+		}
+
 		.wordmark {
 			animation: wiggle 0.5s steps(1) infinite;
 		}
 
 		@media (prefers-reduced-motion: reduce) {
 			.trinkets img,
-			.wordmark {
+			.wordmark,
+			.np-disc,
+			.eq i {
 				animation: none;
 			}
 
-			.trinkets img.button:hover {
+			.trinkets img.button:hover,
+			.listen-toggle[aria-pressed="true"] img.button {
 				animation: none;
 				filter: url(#to-cyan) url(#button-outline);
+			}
+
+			/* A plain crossfade instead of the dots */
+			.listen-dots {
+				display: none;
+			}
+
+			.listen {
+				opacity: 0;
+				transition: opacity 0.3s ease;
+			}
+
+			.stage.is-listening .listen {
+				opacity: 1;
+			}
+
+			.stage.is-listening .temp-filler {
+				transform: none;
+			}
+
+			.listen-inner > *,
+			.listen.is-open .listen-inner > * {
+				transform: none;
+				transition: opacity 0.3s ease;
 			}
 		}
 
@@ -926,6 +1192,33 @@ l-107 0 -47 -49z"/>
 		<div class="stage">
 			<svg class="squircle" aria-hidden="true"><path id="squircle-path" /></svg>
 			<img class="temp-filler" src="assets/temp filler.png" alt="">
+			<section class="listen" id="listen" aria-label="Listen along" aria-hidden="true" inert>
+				<canvas class="listen-dots" aria-hidden="true"></canvas>
+				<div class="listen-reveal">
+					<div class="listen-inner">
+						<div class="listen-now" style="--i: 0">
+							<p class="listen-label">now playing</p>
+							<div class="np-row">
+								<div class="np-disc" aria-hidden="true"></div>
+								<div>
+									<p class="np-title" data-listen="title"></p>
+									<p class="np-artist" data-listen="artist"></p>
+									<span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+								</div>
+							</div>
+						</div>
+						<div class="listen-top" style="--i: 1">
+							<p class="listen-label">top artists</p>
+							<ol data-listen="artists"></ol>
+						</div>
+						<div class="listen-repeat" style="--i: 2">
+							<p class="listen-label">on repeat</p>
+							<ol data-listen="tracks"></ol>
+						</div>
+					</div>
+					<button class="listen-close" type="button"><span aria-hidden="true">✕</span>close</button>
+				</div>
+			</section>
 			<div class="cutouts cutouts-left">
 				<img src="assets/cutouttomato.png" alt="Tomato">
 				<img src="assets/cutoutspiral.png" alt="Spiral">
@@ -993,7 +1286,9 @@ l-107 0 -47 -49z"/>
 				<img class="button" src="assets/trinketbuttonaboutme.png?v=2" alt="About me">
 			</a>
 			<img class="cutout" src="assets/cutoutbird.png" alt="Bird">
-			<img src="assets/trinketstars.png" alt="">
+			<button class="listen-toggle" type="button" aria-pressed="false" aria-controls="listen">
+				<img class="button" src="assets/trinketbuttonlistenalong.png" alt="Listen along">
+			</button>
 			<img class="cutout" src="assets/cutoutchicken.png" alt="Chicken">
 			<img src="assets/trinketbunny.png" alt="">
 		</div>
@@ -1068,6 +1363,7 @@ l-107 0 -47 -49z"/>
 		const squirclePath = document.getElementById("squircle-path");
 		const filler = document.querySelector(".temp-filler");
 		const FILLER_BLEED = 32; // px the filler extends past the stage on each side
+		const listen = document.getElementById("listen");
 
 		let wavePhase = 0;
 
@@ -1171,6 +1467,7 @@ l-107 0 -47 -49z"/>
 				.map(([x, y]) => [x + FILLER_BLEED, y + FILLER_BLEED]);
 			const clipD = `${pathFromPoints(clipPoints)}Z`;
 			filler.style.clipPath = `path("${clipD}")`;
+			listen.style.clipPath = filler.style.clipPath;
 		}
 
 		// The stage cutouts are cut out of the filler: each shape becomes a
@@ -1258,6 +1555,145 @@ l-107 0 -47 -49z"/>
 			};
 			requestAnimationFrame(tick);
 		}
+
+		// Listen along. Placeholder data until it's wired to Spotify.
+		const LISTENING = {
+			nowPlaying: { title: "Song title", artist: "Artist" },
+			topArtists: ["Artist one", "Artist two", "Artist three", "Artist four", "Artist five"],
+			onRepeat: [
+				{ title: "Track one", artist: "Artist" },
+				{ title: "Track two", artist: "Artist" },
+				{ title: "Track three", artist: "Artist" },
+				{ title: "Track four", artist: "Artist" },
+				{ title: "Track five", artist: "Artist" },
+			],
+		};
+
+		listen.querySelector('[data-listen="title"]').textContent = LISTENING.nowPlaying.title;
+		listen.querySelector('[data-listen="artist"]').textContent = LISTENING.nowPlaying.artist;
+		listen.querySelector('[data-listen="artists"]').replaceChildren(
+			...LISTENING.topArtists.map((name) => Object.assign(document.createElement("li"), { textContent: name })),
+		);
+		listen.querySelector('[data-listen="tracks"]').replaceChildren(
+			...LISTENING.onRepeat.map(({ title, artist }) => {
+				const li = document.createElement("li");
+				const text = document.createElement("span");
+				text.append(title, Object.assign(document.createElement("small"), { textContent: artist }));
+				li.append(text);
+				return li;
+			}),
+		);
+
+		const listenToggle = document.querySelector(".listen-toggle");
+
+		// Halftone transition. Each grid cell gets a start time from its
+		// distance to the button plus some noise; its dot then swells until
+		// neighbours overlap into blobs and finally solid orange. Drawn at
+		// 24fps so it steps like the rest of the hand-drawn motion.
+		const dots = listen.querySelector(".listen-dots");
+		const dotsCtx = dots.getContext("2d");
+		const DOT_CELL = 14; // px between dot centres
+		const DOT_MS = 750;
+		const DOT_FRAME_MS = 1000 / 24;
+		const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+		let dotRun = 0;
+
+		function runDots(opening, onFirstFrame) {
+			const run = ++dotRun;
+			const box = listen.getBoundingClientRect();
+			const dpr = window.devicePixelRatio || 1;
+			dots.width = Math.round(box.width * dpr);
+			dots.height = Math.round(box.height * dpr);
+			dotsCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+			const b = listenToggle.getBoundingClientRect();
+			const ox = b.left + b.width / 2 - box.left;
+			const oy = b.top + b.height / 2 - box.top;
+			const cols = Math.ceil(box.width / DOT_CELL) + 1;
+			const rows = Math.ceil(box.height / DOT_CELL) + 1;
+			const far = Math.max(
+				...[[0, 0], [box.width, 0], [0, box.height], [box.width, box.height]].map(([x, y]) => Math.hypot(x - ox, y - oy)),
+			);
+			const cells = [];
+			for (let j = 0; j < rows; j++) {
+				for (let i = 0; i < cols; i++) {
+					const x = i * DOT_CELL;
+					const y = j * DOT_CELL;
+					const start = (Math.hypot(x - ox, y - oy) / far) * 0.6 + Math.random() * 0.15;
+					cells.push([x, y, start]);
+				}
+			}
+			const maxR = DOT_CELL * 0.75; // past half the diagonal, so neighbours fuse
+
+			return new Promise((resolve) => {
+				let t0 = 0;
+				let last = -Infinity;
+				const frame = (now) => {
+					if (run !== dotRun) return resolve(false);
+					t0 ||= now;
+					const t = Math.min((now - t0) / DOT_MS, 1);
+					if (now - last >= DOT_FRAME_MS || t === 1) {
+						last = now;
+						const p = opening ? t : 1 - t;
+						dotsCtx.clearRect(0, 0, box.width, box.height);
+						dotsCtx.fillStyle = "#fb5a28";
+						dotsCtx.beginPath();
+						for (const [x, y, start] of cells) {
+							const k = Math.min(Math.max((p * 1.25 - start) / 0.5, 0), 1);
+							if (!k) continue;
+							const r = maxR * k * k * (3 - 2 * k);
+							dotsCtx.moveTo(x + r, y);
+							dotsCtx.arc(x, y, r, 0, Math.PI * 2);
+						}
+						dotsCtx.fill();
+						if (onFirstFrame) {
+							onFirstFrame();
+							onFirstFrame = null;
+						}
+					}
+					if (t < 1) requestAnimationFrame(frame);
+					else resolve(true);
+				};
+				requestAnimationFrame(frame);
+			});
+		}
+
+		async function setListening(on) {
+			stage.classList.toggle("is-listening", on);
+			listenToggle.setAttribute("aria-pressed", String(on));
+			listen.inert = !on;
+			listen.setAttribute("aria-hidden", String(!on));
+
+			if (reducedMotion) {
+				listen.classList.toggle("is-open", on);
+				return;
+			}
+			if (on) {
+				if (await runDots(true)) {
+					listen.classList.add("is-open");
+					listen.classList.remove("is-solid");
+					dotsCtx.clearRect(0, 0, dots.width, dots.height);
+				}
+			} else {
+				// Fade the content out over the plain orange, then hand the orange
+				// over to the dots (fully merged on their first frame) and
+				// shrink them away to uncover the painting
+				listen.classList.add("is-solid");
+				listen.classList.remove("is-open");
+				await new Promise((r) => setTimeout(r, 160));
+				if (stage.classList.contains("is-listening")) return;
+				await runDots(false, () => listen.classList.remove("is-solid"));
+			}
+		}
+
+		listenToggle.addEventListener("click", () => setListening(!stage.classList.contains("is-listening")));
+		listen.querySelector(".listen-close").addEventListener("click", () => {
+			setListening(false);
+			listenToggle.focus();
+		});
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape" && stage.classList.contains("is-listening")) setListening(false);
+		});
 
 		Promise.all([filler, ...holes].map((img) => img.decode().catch(() => {}))).then(updateCutouts);
 		</script>
